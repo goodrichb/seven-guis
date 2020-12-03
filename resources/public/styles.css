@@ -93,3 +93,7 @@ label {
 .formula {
  background-color: #d7ffd9;
 }
+
+.formula-toggle {
+ margin-bottom: 10px
+}

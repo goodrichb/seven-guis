@@ -218,7 +218,7 @@
     [:code "=(* A0 A1)"]
     ", and "
     [:code "=(SUM A0 C3)"]]
-   [:button {:on-click #(swap! show-formulas? not)}
+   [:button.formula-toggle {:on-click #(swap! show-formulas? not)}
     (if @show-formulas?
       "Hide Formulas"
       "Show Formulas")]
