@@ -1,0 +1,95 @@
+body {
+}
+
+.ui {
+ margin: auto;
+ width: 500px;
+ padding: 20px 10px 20px 10px;
+}
+
+label {
+ margin: 0 10px 0 0;
+}
+
+#temp label {
+ margin: 0 10px 0 10px;
+}
+
+#booker > div {
+ margin: 10px 0 10px 0;
+}
+ 
+#timer > div {
+ margin: 10px 0 10px 0;
+}
+
+.crud-half > .form-group {
+ position: relative;
+}
+
+#crud-left {
+ width: 200px;
+ margin-right: 20px;
+}
+
+#crud-right {
+ width: 250px;
+ margin-top: 40px;
+}
+
+#listbox {
+ width: 200px;
+ margin: 10px 0 0 0;
+}
+
+#crud-left .form-group {
+ width: 200px;
+ margin: 10px 0 10px 0;
+}
+
+#crud-right .form-group {
+ width: 250px;
+ margin: 10px 0 10px 0;
+}
+
+#crud-wrapper {
+ display: flex;
+}
+
+.align-right {
+ position: absolute;
+ right: 0;
+}
+
+.buttons > button {
+ margin: 10px 10px 0 0;
+}
+
+#canvas-wrapper {
+ margin-top: 10px;
+ border: 1px solid black;
+ position: relative;
+ height: 500px;
+}
+
+#cells-wrapper {
+ width: 500px;
+ height: 500px;
+ overflow: auto;
+}
+
+#cells-table {
+ border-collapse: collapse;
+}
+
+.cell {
+ border: 1px solid grey;
+ min-width: 50px;
+ height: 30px;
+ padding: 4px;
+ text-align: right;
+}
+
+.formula {
+ background-color: #d7ffd9;
+}
