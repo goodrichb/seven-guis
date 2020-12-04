@@ -88,6 +88,14 @@
                           (first circle)
                           r))))
 
+(defn draw-circle! [context x y r highlight?]
+  (do (.beginPath context)
+      (.arc context x y r 0 (* 2 js/Math.PI) false)
+      (set! (.-fillStyle context)
+            (if highlight? "grey" "white"))
+      (.fill context)
+      (.stroke context)))
+
 (defn draw!
   ([] (draw! (get @history @state) @selected))
   ([circles selection]
@@ -96,13 +104,7 @@
     (.clearRect context 0 0 (.-width el) (.-height el))
     (doall
       (for [[[x y] r :as circle] (reverse (sort-by second circles))]
-        (do
-         (.beginPath context)
-         (.arc context x y r 0 (* 2 js/Math.PI) false)
-         (set! (.-fillStyle context)
-               (if (= selection circle) "grey" "white"))
-         (.fill context)
-         (.stroke context)))))))
+        (draw-circle! context x y r (= selection circle)))))))
 
 (add-watch
  new-radius
