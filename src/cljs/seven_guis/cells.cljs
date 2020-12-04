@@ -222,9 +222,9 @@
                    :reagent-render
                    (fn [props] [input props edit])}))
 
-(defn formula? [q]
-  (and (string? (some-> q :raw))
-       (= "=" (some-> q :raw first))))
+(defn formula? [data]
+  (and (string? (some-> data :raw))
+       (= "=" (some-> data :raw first))))
 
 (defn inner-cell [c r]
   (if (= @dblclick [c r])
@@ -245,7 +245,7 @@
     (fn [this]
       (let [;; id is [column row], the more natural order for formulas and humans
             id (vec (reverse (take 2 (reverse (r/argv this)))))
-            ;; cursor-path is [row column], to be used with @state
+            ;; cursor-path is [row column], to be used within @state
             cursor-path (vec (reverse id))
             elem (.getElementById js/document (apply str id))]
        (.addEventListener elem
@@ -257,7 +257,7 @@
 (defn cells-component []
   [:div#cells.ui
    [:h2 "Cells"]
-   [:p "Accepts formulas of the form: "
+   [:p "Double-click to edit cells. Accepts formulas of the form: "
     [:code "=B0"]
     ", "
     [:code "=(+ A0 A1)"]
