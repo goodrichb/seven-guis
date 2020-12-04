@@ -12,9 +12,13 @@
   [:div
    [:div.ui
     [:h1 "7GUIs"]
-    [:p "implemented by Brian Goodrich"]
-    [:p "specified "
-     [:a {:href "https://eugenkiss.github.io/7guis/tasks"} "here"]]]
+    [:ul
+     [:li "implemented by "
+      [:a {:href "https://briangoodrich.com"}
+       "Brian Goodrich"]]
+     [:li [:a {:href "https://github.com/goodrichb/seven-guis"}
+      "Source on GitHub"]]
+     [:li [:a {:href "https://eugenkiss.github.io/7guis/tasks"} "7GUIs Benchmark"]]]]
    [counter-component]
    [temp]
    [booker]
