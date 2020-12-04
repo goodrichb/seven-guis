@@ -34,15 +34,23 @@
 
 (defn reject-NaN [?n] (if (js/isNaN ?n) nil ?n))
 
+(defn ?num
+  "string -> nil or number"
+  [string]
+  (reject-NaN (js/parseFloat (re-find #"^\d+\.?\d*$" string))))
+
 (defn literal [string]
   (let [trimmed (trim string)]
-    (if-let [?number (reject-NaN (js/parseFloat (re-find #"^\d+\.?\d*$" trimmed)))]
+    (if-let [?number (?num trimmed)]
       ?number
       trimmed)))
 
+(defn inside-form [string]
+  (apply str (reverse (drop 1 (reverse (drop 1 (seq string)))))))
+
 (defn form-or-literal [string]
   (let [trimmed (trim string)]
-    (if-let [?number (reject-NaN (js/parseFloat (re-find #"^\d+\.?\d*$" trimmed)))]
+    (if-let [?number (?num trimmed)]
       ?number
       (if-let [?reference (re-find #"^[A-Z]\d{1,2}$" trimmed)]
         (let [row (js/parseFloat (apply str (rest ?reference)))
@@ -50,8 +58,8 @@
           [row column])
         (if (contains? functions trimmed)
           trimmed
-          (if-let [?form (and (= "(" (first trimmed)) (= ")" (last trimmed)))]
-            (let [inside (apply str (reverse (drop 1 (reverse (drop 1 trimmed)))))
+          (if-let [?form (re-find #"^\(.*\)$" trimmed)]
+            (let [inside (inside-form trimmed)
                   tokens (clojure.string/split inside #"\s")]
               (map form-or-literal tokens))
             trimmed))))))
@@ -64,8 +72,11 @@
 
 ;;; Evaluation
 
-(defn lookup [[r c]]
-  @(r/cursor state [[r c] :evaluated]))
+(defn lookup [?reference-or-literal]
+  (if (vector? ?reference-or-literal)
+    (let [[r c] ?reference-or-literal]
+      @(r/cursor state [[r c] :evaluated]))
+    ?reference-or-literal))
 
 (defn sum-deps [[[r1 c1] [r2 c2]]]
   (let [rows (range r1 (inc r2))
@@ -251,7 +262,7 @@
     ", "
     [:code "=(+ A0 A1)"]
     ", "
-    [:code "=(- A0 A1)"]
+    [:code "=(- A0 3)"]
     ", "
     [:code "=(* A0 A1)"]
     ", and "
