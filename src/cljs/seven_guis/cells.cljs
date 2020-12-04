@@ -136,7 +136,6 @@
                            [r c])
                @state)))
 
-;; TODO: prevent if any downstream cells are deps. (i.e. prevent circular dependencies)
 (defn propogate!
   ;; With this arity, use the cell's existing :raw, but re-parse, re-evaluate,
   ;; and propogate changes
@@ -146,11 +145,19 @@
   (let [cursor (r/cursor state [[r c]])
         results (cell-data [r c] raw)
         downstream (find-downstream [r c])]
-    #_(log "propogate! " [r c])
-    #_(log "downstream: " downstream)
-    (reset! cursor results)
-    ;; Re-evaluate anything which depends on this cell
-    (doall (map propogate! downstream)))))
+    (comment
+      (log "propogate! " [r c] " raw: " raw)
+      (log "downstream: " downstream))
+    (when-not (= "" raw) ;; prevent empty string cells
+      ;; Check for circular dependencies
+      (if-not (empty? (clojure.set/intersection (-> results :deps)
+                                                (-> downstream set)))
+        (do (js/alert "Circular dependency found. Ignoring last input.")
+            #_(log @state))
+        ;; Re-evaluate anything which depends on this cell
+        (do (reset! cursor results)
+            #_(log @state)
+            (doall (map propogate! downstream))))))))
 
 (defn save-cell-input! [[r c]]
   (propogate! [r c] @edit)
@@ -183,7 +190,7 @@
   (swap! state assoc-cell-data [2 "E"] "=(* E0 E1)")
   #_(log @state))
 
-;; Components
+;;; Components
 
 (defn input [[r c] value]
   [:input {:type "text"
