@@ -100,7 +100,7 @@
        [:input {:type "range"
                 :id "radius"
                 :min 1
-                :max 250
+                :max 350
                 :value @new-radius
                 :on-change
                 #(reset! new-radius (-> % .-target .-value js/parseInt))
@@ -220,7 +220,7 @@
 
 (defn canvas []
   [:canvas#canvas
-   {:width "500px"
+   {:width "760px"
     :height "500px"}])
 
 (def canvas-with-hooks

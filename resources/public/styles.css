@@ -3,7 +3,7 @@ body {
 
 .ui {
  margin: auto;
- width: 500px;
+ width: 760px;
  padding: 20px 10px 20px 10px;
 }
 
@@ -73,7 +73,7 @@ label {
 }
 
 #cells-wrapper {
- width: 500px;
+ width: 760px;
  height: 500px;
  overflow: auto;
 }
