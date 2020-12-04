@@ -8,27 +8,26 @@
 ;; This will track the closest circle to the mouse position, up
 ;; until we are adjusting that circle, when we'll pause selection updates
 (def selected (r/atom nil))
-
+;; Latest mouse coordinates on the canvas
 (def mouse (r/atom [0 0]))
 ;; Coordinates if the user has right clicked on a circle, nil otherwise
 (def right-clicked-coords (r/atom nil))
-
+;; [[x y] r] of a right-clicked-circle, or nil
 (def right-clicked-circle (r/atom nil))
-;; Are we adjusting a circle's radius? Should that modal be up?
+;; Are we adjusting a circle's radius? Should that dialog be up?
 (def adjusting? (r/atom false))
 
-(def default-radius 10)
 ;; We don't want every tick of the slider to be in the undo history
 (def new-radius (r/atom 10))
 
-;;; Undo/Redo State
-
-;; start with something
-(def one-circle {[100 100] 20})
+;;; State tracked for Undo/Redo
 
 ;; start the state (index) at the end of the (synthetic) history
 (def state (r/atom 1))
 
+(def default-radius 10)
+(def one-circle {[100 100] default-radius})
+;; start with one circle
 (def history (r/atom [{} one-circle]))
 
 (defn at-rest? []
@@ -62,6 +61,8 @@
 (defn get-circles []
   (get @history @state))
 
+;;; Event handlers and atom watchers
+
 (defn adjust! []
   (let [[[x y] old-radius] @right-clicked-circle]
     (reset! adjusting? true)
@@ -86,32 +87,6 @@
     (safe-update!  (assoc circles
                           (first circle)
                           r))))
-
-(defn adjuster []
-  (if @adjusting?
-    (let [[[x y] old-radius] @right-clicked-circle]
-      [:div {:style {:background-color "#eee"
-                     :border "1px solid black"
-                     :padding "10px"
-                     :position "absolute"
-                     :top (str 100 #_y "px")
-                     :width "250px"
-                     :height "100px"
-                     :left (str 115 #_x "px")}}
-       [:div {:style {:margin "auto"}}
-       [:p "Adjust diameter of circle at (" x ", " y ")."]
-       [:div
-       [:input {:type "range"
-                :id "radius"
-                :min 1
-                :max 350
-                :value @new-radius
-                :on-change
-                #(reset! new-radius (-> % .-target .-value js/parseInt))
-                :step 1}]
-        (str (* 2 @new-radius) "px")]
-       [:div [:button {:on-click save-radius!} "Save new diameter"]]]])
-    [:div.empty]))
 
 (defn draw!
   ([] (draw! (get @history @state) @selected))
@@ -202,7 +177,6 @@
       (if (nil? selection) ;; empty space
         (add-circle! [x y])))))
 
-
 (defn on-canvas []
   (let [el (.getElementById js/document "canvas")]
     (.addEventListener el
@@ -221,6 +195,23 @@
                        canvas-click
                        false)
     (draw!)))
+
+;;; Components
+
+(defn undo []
+   [:button {:type "button"
+             :disabled (not (undoable?))
+             :on-click undo!}
+    "Undo"])
+
+(defn redo []
+   [:button {:type "button"
+             :disabled (not (redoable?))
+             :on-click redo!}
+    "Redo"])
+
+(defn time-travel []
+  [:div.buttons [undo] [redo]])
 
 (defn canvas []
   [:canvas#canvas
@@ -244,27 +235,37 @@
         "Adjust diameter"]]
       [:div.empty])))
 
-(defn undo []
-   [:button {:type "button"
-             :disabled (not (undoable?))
-             :on-click undo!}
-    "Undo"])
-
-(defn redo []
-   [:button {:type "button"
-             :disabled (not (redoable?))
-             :on-click redo!}
-    "Redo"])
-
-(defn time-travel [state history]
-  [:div.buttons
-   [undo]
-   [redo]])
+(defn adjuster []
+  (if @adjusting?
+    (let [[[x y] old-radius] @right-clicked-circle]
+      [:div {:style {:background-color "#eee"
+                     :border "1px solid black"
+                     :padding "10px"
+                     :position "absolute"
+                     :top (str 100 #_y "px")
+                     :width "250px"
+                     :height "100px"
+                     :left (str 115 #_x "px")}}
+       [:div {:style {:margin "auto"}}
+       [:p "Adjust diameter of circle at (" x ", " y ")."]
+       [:div
+       [:input {:type "range"
+                :id "radius"
+                :min 1
+                :max 350
+                :value @new-radius
+                :on-change
+                #(reset! new-radius (-> % .-target .-value js/parseInt))
+                :step 1}]
+        (str (* 2 @new-radius) "px")]
+       [:div [:button {:on-click save-radius!} "Save new diameter"]]]])
+    [:div.empty]))
 
 (defn circles []
   [:div#circles.ui
    [:h2 "Circle Drawer"]
-   [time-travel state history]
+   [:p "Click to add a circle. Right-click a circle to adjust its diameter."]
+   [time-travel]
    [:div#canvas-wrapper
     [canvas-with-hooks]
     [popup]
