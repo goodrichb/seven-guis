@@ -31,11 +31,15 @@
 
 (def history (r/atom [{} one-circle]))
 
+(defn at-rest? []
+  (and (nil? @right-clicked-coords)
+       (false? @adjusting?)))
+
 (defn undoable? []
-  (>= @state 1))
+  (and (at-rest?) (>= @state 1)))
 
 (defn redoable? []
-  (> (dec (count @history)) @state))
+  (and (at-rest?) (> (dec (count @history)) @state)))
 
 (defn log-time-travel [action]
   (log action)
